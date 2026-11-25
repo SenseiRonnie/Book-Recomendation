@@ -1,70 +1,94 @@
-<!doctype html><html><head><meta charset="utf-8"><title>Online Book Recommendation System</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>BookBuddy - Book Recommendations</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-body{font-family:system-ui,sans-serif;max-width:900px;margin:20px auto;padding:0 12px;color:#222}
-nav button{margin:2px}.card{border:1px solid #ccc;border-radius:6px;padding:8px;margin:6px 0}
-input,select{margin:2px;padding:4px}.row{display:flex;align-items:center;margin:4px 0}.row span{width:220px}
-.bar{background:#3b82f6;color:#fff;padding:2px 6px;border-radius:3px;white-space:nowrap}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:4px;text-align:left}
+:root{--p:#6366f1;--p2:#8b5cf6;--bg:#f4f5fb;--tx:#1f2937;--mu:#6b7280}
+*{box-sizing:border-box}body{margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header h1{margin:0;font-size:1.4rem}.wrap{max-width:1000px;margin:0 auto;padding:18px}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 14px;background:var(--p);color:#fff;font-weight:600;transition:.15s}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}button.ghost{background:#fff;color:var(--p);border:1px solid var(--p)}
+button.red{background:#ef4444}input{padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:.95rem;margin:3px;outline:none}
+input:focus{border-color:var(--p);box-shadow:0 0 0 3px #6366f133}
+#auth{max-width:380px;margin:60px auto;background:#fff;padding:28px;border-radius:16px;box-shadow:0 10px 30px #0001;text-align:center}
+#auth input{width:100%;margin:6px 0}#auth .btns{display:flex;gap:8px;margin-top:8px}#auth button{flex:1}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}nav button{background:#fff;color:var(--tx);box-shadow:0 1px 3px #0002}
+nav button.on{background:var(--p);color:#fff}
+.search{width:100%;font-size:1.05rem;padding:14px 18px;border-radius:30px;box-shadow:0 2px 8px #0001;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 10px #0001;margin-bottom:10px}
+.book{display:flex;gap:12px}.cover{flex:0 0 64px;height:92px;border-radius:6px 10px 10px 6px;color:#fff;font-size:1.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 8px #0003}
+.book h3{margin:0 0 2px;font-size:1.05rem}.mu{color:var(--mu);font-size:.85rem}
+.stars span{font-size:1.4rem;color:#d1d5db;cursor:pointer}.stars span:hover,.stars span:hover~span{color:#d1d5db}.stars:hover span{color:#f59e0b}.stars span:hover~span{color:#d1d5db!important}
+.tag{display:inline-block;background:#eef2ff;color:var(--p);border-radius:20px;padding:2px 10px;font-size:.8rem}
+.row{display:flex;align-items:center;margin:8px 0}.row span{width:200px;font-size:.9rem}.row div.t{flex:1;background:#e5e7eb;border-radius:20px}
+.bar{background:linear-gradient(90deg,var(--p),var(--p2));color:#fff;padding:4px 10px;border-radius:20px;font-size:.8rem;white-space:nowrap}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}th,td{padding:8px;text-align:left;border-bottom:1px solid #eee}th{background:#eef2ff}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:30px;opacity:0;transition:.3s;pointer-events:none}
+#toast.show{opacity:1}
 </style></head><body>
-<h2>Online Book Recommendation System</h2>
-<div id="auth">
-  <input id="u" placeholder="Username"><input id="p" type="password" placeholder="Password (min 6)"><input id="e" placeholder="Email (register)">
-  <button onclick="login()">Login</button><button onclick="register()">Register</button>
-</div>
-<div id="app" hidden>
-  <p>Logged in as <b id="who"></b> <button onclick="logout()">Logout</button></p>
-  <nav><button onclick="tab('books')">Books</button><button onclick="tab('friends')">Friends</button>
-  <button onclick="tab('inbox')">Recommendations</button><button onclick="tab('chart')">Rating Chart</button>
-  <button onclick="tab('profile')">Profile</button><button id="adminTab" onclick="tab('admin')">Admin</button></nav>
-  <section class="tab" id="books"><input id="q" placeholder="Search by ISBN"><button onclick="tab('books')">Search</button><div id="booklist"></div></section>
-  <section class="tab" id="friends" hidden><input id="fu" placeholder="Username"><button onclick="addFriend()">Send request</button>
-    <h4>Incoming requests</h4><div id="reqs"></div><h4>Friends</h4><div id="flist"></div></section>
+<header><h1>📚 BookBuddy</h1><div id="who" hidden></div></header>
+<div id="auth"><h2>Welcome</h2><p class="mu">Discover books recommended by your friends</p>
+  <input id="u" placeholder="Username"><input id="p" type="password" placeholder="Password (min 6)"><input id="e" placeholder="Email (for register)">
+  <div class="btns"><button onclick="login()">Login</button><button class="ghost" onclick="register()">Register</button></div></div>
+<div id="app" class="wrap" hidden>
+  <nav id="nav"><button data-t="books" onclick="tab('books')">📖 Books</button><button data-t="friends" onclick="tab('friends')">👥 Friends</button>
+  <button data-t="inbox" onclick="tab('inbox')">💌 Recommendations</button><button data-t="chart" onclick="tab('chart')">📊 Ratings</button>
+  <button data-t="profile" onclick="tab('profile')">👤 Profile</button><button id="adminTab" data-t="admin" onclick="tab('admin')">🛠 Admin</button></nav>
+  <section class="tab" id="books"><input class="search" id="q" oninput="renderBooks()" placeholder="🔍 Search by book name, author or ISBN..."><div class="grid" id="booklist"></div></section>
+  <section class="tab" id="friends" hidden><div class="card"><input id="fu" placeholder="Friend's username"><button onclick="addFriend()">Send request</button></div>
+    <h3>Incoming requests</h3><div id="reqs"></div><h3>My friends</h3><div id="flist"></div></section>
   <section class="tab" id="inbox" hidden></section>
   <section class="tab" id="chart" hidden></section>
-  <section class="tab" id="profile" hidden><input id="pe" placeholder="Email"><button onclick="saveProfile()">Save</button></section>
-  <section class="tab" id="admin" hidden>
-    <h4>Add book</h4><input id="ai" placeholder="ISBN"><input id="at" placeholder="Title"><input id="aa" placeholder="Author">
-    <input id="ap" placeholder="Publisher"><input id="ay" type="number" placeholder="Year"><button onclick="addBook()">Add</button>
-    <h4>Users</h4><div id="ulist"></div><h4>Books</h4><div id="blist"></div></section>
-</div>
+  <section class="tab" id="profile" hidden><div class="card"><input id="pe" placeholder="Email"><button onclick="saveProfile()">Save</button></div></section>
+  <section class="tab" id="admin" hidden><div class="card"><h3>Add book</h3><input id="ai" placeholder="ISBN"><input id="at" placeholder="Title"><input id="aa" placeholder="Author">
+    <input id="ap" placeholder="Publisher"><input id="ay" type="number" placeholder="Year"><button onclick="addBook()">Add</button></div>
+    <h3>Users</h3><div id="ulist"></div><h3>Books</h3><div id="blist"></div></section>
+</div><div id="toast"></div>
 <script>
-let auth=sessionStorage.getItem('a'),me=null;
+let auth=sessionStorage.getItem('a'),me=null,BOOKS=[];
 const $=i=>document.getElementById(i),esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+function toast(m){const t=$('toast');t.textContent=m;t.className='show';setTimeout(()=>t.className='',2200)}
 async function api(p,m='GET',b){
   const r=await fetch('/api'+p,{method:m,headers:{'Content-Type':'application/json',...(auth?{Authorization:auth}:{})},body:b?JSON.stringify(b):undefined});
   if(!r.ok){let t=r.statusText;try{t=(await r.json()).message||t}catch{}throw new Error(t)}
   const t=await r.text();return t?JSON.parse(t):null}
-const run=f=>f().catch(e=>alert(e.message));
+const run=f=>f().catch(e=>toast(e.message));
 function login(){run(async()=>{auth='Basic '+btoa($('u').value+':'+$('p').value);
   try{me=await api('/me')}catch(e){auth=null;throw e}sessionStorage.setItem('a',auth);await start()})}
-function register(){run(async()=>{await api('/auth/register','POST',{username:$('u').value,password:$('p').value,email:$('e').value});alert('Registered. Please log in.')})}
+function register(){run(async()=>{await api('/auth/register','POST',{username:$('u').value,password:$('p').value,email:$('e').value});toast('Registered! Please log in.')})}
 function logout(){sessionStorage.clear();location.reload()}
-async function start(){me=me||await api('/me');$('auth').hidden=true;$('app').hidden=false;
-  $('who').textContent=me.username;$('adminTab').hidden=me.role!=='ADMIN';$('pe').value=me.email||'';tab('books')}
+async function start(){me=me||await api('/me');$('auth').hidden=true;$('app').hidden=false;$('who').hidden=false;
+  $('who').innerHTML=`Hi, <b>${esc(me.username)}</b> <button class="ghost" onclick="logout()">Logout</button>`;
+  $('adminTab').hidden=me.role!=='ADMIN';$('pe').value=me.email||'';tab('books')}
 const L={books:loadBooks,friends:loadFriends,inbox:loadInbox,chart:loadChart,admin:loadAdmin,profile:async()=>{}};
-function tab(t){document.querySelectorAll('.tab').forEach(s=>s.hidden=s.id!==t);run(L[t])}
-async function loadBooks(){const q=$('q').value.trim(),bs=(await api('/books')).filter(b=>!q||b.isbn.includes(q));
-  $('booklist').innerHTML=bs.map(b=>`<div class="card"><b>${esc(b.title)}</b> by ${esc(b.author)}<br>${esc(b.publisher)}, ${esc(b.publishYear)} &middot; ISBN ${esc(b.isbn)}<br>
-  <select id="s${esc(b.isbn)}">${[1,2,3,4,5].map(n=>`<option>${n}</option>`).join('')}</select>
-  <button onclick="rate('${esc(b.isbn)}')">Rate</button><button onclick="recommend('${esc(b.isbn)}')">Recommend to friend</button></div>`).join('')||'No books found'}
-function rate(i){run(async()=>{await api(`/books/${i}/rate`,'POST',{stars:+$('s'+i).value});alert('Rated')})}
-function recommend(i){const to=prompt('Friend username');if(!to)return;const c=prompt('Comment');
-  run(async()=>{await api('/recommendations','POST',{toUser:to,isbn:i,comment:c});alert('Sent')})}
+function tab(t){document.querySelectorAll('.tab').forEach(s=>s.hidden=s.id!==t);
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));run(L[t])}
+async function loadBooks(){BOOKS=await api('/books');renderBooks()}
+function hue(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h}
+function renderBooks(){const q=$('q').value.trim().toLowerCase();
+  const bs=BOOKS.filter(b=>!q||[b.title,b.author,b.isbn].some(v=>(v||'').toLowerCase().includes(q)));
+  $('booklist').innerHTML=bs.map(b=>`<div class="card book"><div class="cover" style="background:linear-gradient(135deg,hsl(${hue(b.title)},65%,50%),hsl(${(hue(b.title)+40)%360},65%,38%))">${esc((b.title||'?')[0])}</div>
+  <div><h3>${esc(b.title)}</h3><div class="mu">by ${esc(b.author)}</div><div class="mu">${esc(b.publisher)}${b.publishYear?', '+esc(b.publishYear):''}</div>
+  <span class="tag">ISBN ${esc(b.isbn)}</span>
+  <div class="stars" title="Click a star to rate">${[1,2,3,4,5].map(n=>`<span onclick="rate('${esc(b.isbn)}',${n})">★</span>`).join('')}</div>
+  <button class="ghost" onclick="recommend('${esc(b.isbn)}')">💌 Recommend</button></div></div>`).join('')||'<p class="mu">No books found</p>'}
+function rate(i,n){run(async()=>{await api(`/books/${i}/rate`,'POST',{stars:n});toast('You rated '+n+' ★')})}
+function recommend(i){const to=prompt('Friend username');if(!to)return;const c=prompt('Your comment');
+  run(async()=>{await api('/recommendations','POST',{toUser:to,isbn:i,comment:c});toast('Recommendation sent!')})}
 async function loadFriends(){const rq=await api('/friends/requests'),fl=await api('/friends');
-  $('reqs').innerHTML=rq.map(r=>`<div class="card">${esc(r.requester)} <button onclick="accept(${r.id})">Accept</button></div>`).join('')||'None';
-  $('flist').innerHTML=fl.map(f=>`<div class="card">${esc(f)}</div>`).join('')||'None'}
-function addFriend(){run(async()=>{await api('/friends/request/'+encodeURIComponent($('fu').value),'POST');alert('Request sent')})}
+  $('reqs').innerHTML=rq.map(r=>`<div class="card">${esc(r.requester)} <button onclick="accept(${r.id})">Accept</button></div>`).join('')||'<p class="mu">None</p>';
+  $('flist').innerHTML=fl.map(f=>`<div class="card">👤 ${esc(f)}</div>`).join('')||'<p class="mu">No friends yet</p>'}
+function addFriend(){run(async()=>{await api('/friends/request/'+encodeURIComponent($('fu').value),'POST');toast('Request sent')})}
 function accept(id){run(async()=>{await api('/friends/accept/'+id,'POST');await loadFriends()})}
 async function loadInbox(){const r=await api('/recommendations');
-  $('inbox').innerHTML=r.map(x=>`<div class="card"><b>${esc(x.title)}</b> ${esc(x.author)} (ISBN ${esc(x.isbn)})<br>From <b>${esc(x.from)}</b>: ${esc(x.comment)}</div>`).join('')||'No recommendations yet'}
+  $('inbox').innerHTML=r.map(x=>`<div class="card"><b>${esc(x.title)}</b> <span class="mu">${esc(x.author)}</span> <span class="tag">ISBN ${esc(x.isbn)}</span><br>💬 <b>${esc(x.from)}</b>: ${esc(x.comment)}</div>`).join('')||'<p class="mu">No recommendations yet</p>'}
 async function loadChart(){const s=await api('/ratings/summary');
-  $('chart').innerHTML='<h4>Average rating per book (out of 5)</h4>'+(s.map(x=>`<div class="row"><span>${esc(x.title)}</span><div class="bar" style="width:${x.avg*20}%">${x.avg.toFixed(1)} (${x.count})</div></div>`).join('')||'No ratings yet')}
-function saveProfile(){run(async()=>{me=await api('/me','PUT',{email:$('pe').value});alert('Saved')})}
+  $('chart').innerHTML='<h3>Average rating per book (out of 5)</h3><div class="card">'+(s.map(x=>`<div class="row"><span>${esc(x.title)}</span><div class="t"><div class="bar" style="width:${Math.max(x.avg*20,12)}%">${x.avg.toFixed(1)} ★ (${x.count})</div></div></div>`).join('')||'<p class="mu">No ratings yet</p>')+'</div>'}
+function saveProfile(){run(async()=>{me=await api('/me','PUT',{email:$('pe').value});toast('Saved')})}
 async function loadAdmin(){const us=await api('/admin/users'),bs=await api('/books');
-  $('ulist').innerHTML='<table><tr><th>ID</th><th>User</th><th>Email</th><th>Role</th><th></th></tr>'+us.map(u=>`<tr><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.email)}</td><td>${esc(u.role)}</td><td>${u.role==='ADMIN'?'':`<button onclick="delUser(${u.id})">Delete</button>`}</td></tr>`).join('')+'</table>';
-  $('blist').innerHTML=bs.map(b=>`<div class="card">${esc(b.title)} (${esc(b.isbn)}) <button onclick="delBook('${esc(b.isbn)}')">Delete</button></div>`).join('')}
-function addBook(){run(async()=>{await api('/admin/books','POST',{isbn:$('ai').value,title:$('at').value,author:$('aa').value,publisher:$('ap').value,publishYear:+$('ay').value||null});await loadAdmin()})}
+  $('ulist').innerHTML='<table><tr><th>ID</th><th>User</th><th>Email</th><th>Role</th><th></th></tr>'+us.map(u=>`<tr><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.email)}</td><td>${esc(u.role)}</td><td>${u.role==='ADMIN'?'':`<button class="red" onclick="delUser(${u.id})">Delete</button>`}</td></tr>`).join('')+'</table>';
+  $('blist').innerHTML=bs.map(b=>`<div class="card">${esc(b.title)} <span class="tag">${esc(b.isbn)}</span> <button class="red" onclick="delBook('${esc(b.isbn)}')">Delete</button></div>`).join('')}
+function addBook(){run(async()=>{await api('/admin/books','POST',{isbn:$('ai').value,title:$('at').value,author:$('aa').value,publisher:$('ap').value,publishYear:+$('ay').value||null});toast('Book added');await loadAdmin()})}
 function delUser(id){if(confirm('Delete user?'))run(async()=>{await api('/admin/users/'+id,'DELETE');await loadAdmin()})}
 function delBook(i){if(confirm('Delete book and its ratings?'))run(async()=>{await api('/admin/books/'+i,'DELETE');await loadAdmin()})}
 if(auth)start().catch(()=>{sessionStorage.clear();auth=null});
